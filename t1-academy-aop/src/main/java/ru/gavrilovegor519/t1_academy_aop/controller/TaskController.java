@@ -1,12 +1,12 @@
 package ru.gavrilovegor519.t1_academy_aop.controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.*;
-
 import lombok.RequiredArgsConstructor;
-import ru.gavrilovegor519.t1_academy_aop.entity.Task;
+import org.springframework.web.bind.annotation.*;
+import ru.gavrilovegor519.t1_academy_aop.dto.TaskDto;
+import ru.gavrilovegor519.t1_academy_aop.mapping.TaskMapper;
 import ru.gavrilovegor519.t1_academy_aop.service.TaskService;
+
+import java.util.List;
 
 
 @RestController
@@ -14,25 +14,26 @@ import ru.gavrilovegor519.t1_academy_aop.service.TaskService;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
+    private final TaskMapper taskMapper;
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public List<TaskDto> getAllTasks() {
+        return taskMapper.toDto(taskService.getAllTasks());
     }
 
     @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        return taskService.createTask(task);
+    public TaskDto createTask(@RequestBody TaskDto task) {
+        return taskMapper.toDto(taskService.createTask(taskMapper.toEntity(task)));
     }
     
     @GetMapping("/{id}")
-    public Task getTaskById(@PathVariable Long id) {
-        return taskService.getTaskById(id);
+    public TaskDto getTaskById(@PathVariable Long id) {
+        return taskMapper.toDto(taskService.getTaskById(id));
     }
 
     @PutMapping("/{id}")
-    public Task updateTask(@PathVariable Long id, @RequestBody Task task) {
-        return taskService.updateTask(id, task);
+    public TaskDto updateTask(@PathVariable Long id, @RequestBody TaskDto task) {
+        return taskMapper.toDto(taskService.updateTask(id, taskMapper.toEntity(task)));
     }
 
     @DeleteMapping("/{id}")
