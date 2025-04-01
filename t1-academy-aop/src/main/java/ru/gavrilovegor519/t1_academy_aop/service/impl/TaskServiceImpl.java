@@ -1,14 +1,14 @@
 package ru.gavrilovegor519.t1_academy_aop.service.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.gavrilovegor519.t1_academy_aop.annotations.LogExecution;
 import ru.gavrilovegor519.t1_academy_aop.entity.Task;
+import ru.gavrilovegor519.t1_academy_aop.exception.TaskNotFound;
 import ru.gavrilovegor519.t1_academy_aop.repository.TaskRepository;
 import ru.gavrilovegor519.t1_academy_aop.service.TaskService;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @LogExecution
     public Task getTaskById(Long id) {
-        return taskRepository.findById(id).orElseThrow();
+        return taskRepository.findById(id).orElseThrow(TaskNotFound::new);
     }
 
     @Override
