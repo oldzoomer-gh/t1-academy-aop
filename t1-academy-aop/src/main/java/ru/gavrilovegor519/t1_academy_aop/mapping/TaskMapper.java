@@ -1,12 +1,13 @@
 package ru.gavrilovegor519.t1_academy_aop.mapping;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
+
 import ru.gavrilovegor519.t1_academy_aop.dto.TaskDto;
 import ru.gavrilovegor519.t1_academy_aop.entity.Task;
-
-import java.util.List;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface TaskMapper {
