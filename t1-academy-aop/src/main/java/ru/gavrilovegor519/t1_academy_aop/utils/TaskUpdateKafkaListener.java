@@ -1,13 +1,12 @@
 package ru.gavrilovegor519.t1_academy_aop.utils;
 
+import lombok.AllArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
-import lombok.AllArgsConstructor;
-import ru.gavrilovegor519.t1_academy_aop.annotations.LogExecution;
 import ru.gavrilovegor519.t1_academy_aop.dto.MailLetter;
 import ru.gavrilovegor519.t1_academy_aop.dto.TaskStatusChange;
 import ru.gavrilovegor519.t1_academy_aop.service.NotificationService;
+import ru.gavrilovegor519.t1_academy_aop_logger.annotations.LogExecution;
 
 @Component
 @AllArgsConstructor

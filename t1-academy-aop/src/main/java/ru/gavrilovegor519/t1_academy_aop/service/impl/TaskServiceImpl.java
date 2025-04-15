@@ -1,18 +1,17 @@
 package ru.gavrilovegor519.t1_academy_aop.service.impl;
 
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-import ru.gavrilovegor519.t1_academy_aop.annotations.LogExecution;
 import ru.gavrilovegor519.t1_academy_aop.dto.TaskStatusChange;
 import ru.gavrilovegor519.t1_academy_aop.entity.Task;
 import ru.gavrilovegor519.t1_academy_aop.exception.TaskNotFound;
 import ru.gavrilovegor519.t1_academy_aop.repository.TaskRepository;
 import ru.gavrilovegor519.t1_academy_aop.service.TaskService;
+import ru.gavrilovegor519.t1_academy_aop_logger.annotations.LogExecution;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
