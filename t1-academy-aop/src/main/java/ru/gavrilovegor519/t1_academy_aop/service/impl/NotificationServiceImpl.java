@@ -4,10 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
-import ru.gavrilovegor519.t1_academy_aop.annotations.LogExecution;
 import ru.gavrilovegor519.t1_academy_aop.dto.MailLetter;
 import ru.gavrilovegor519.t1_academy_aop.service.NotificationService;
+import ru.gavrilovegor519.t1_academy_aop_logger.annotations.LogExecution;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
