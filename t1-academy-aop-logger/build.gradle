@@ -31,9 +31,6 @@ publishing {
                     fromResolutionResult()
                 }
             }
-            groupId = 'ru.gavrilovegor519'
-            artifactId = 't1_academy_aop_logger'
-            version = '0.0.1-SNAPSHOT'
             from components.java
         }
     }

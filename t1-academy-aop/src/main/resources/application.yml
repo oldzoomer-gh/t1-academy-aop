@@ -3,7 +3,7 @@ spring:
     name: t1-academy-aop
   kafka:
     bootstrap-servers: localhost:9092
-    topic: ${KAFKA_TOPIC}
+    topic: ${KAFKA_TOPIC:t1-academy-aop}
     consumer:
       group-id: t1-academy-aop
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -26,3 +26,5 @@ spring:
     ssl:
       enabled: true
     default-encoding: UTF-8
+log-aspects:
+  level: ${LOG_ASPECTS_LEVEL:INFO}
