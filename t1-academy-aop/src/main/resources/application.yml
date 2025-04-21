@@ -27,4 +27,5 @@ spring:
       enabled: true
     default-encoding: UTF-8
 log-aspects:
-  level: ${LOG_ASPECTS_LEVEL:INFO}
+  enable: true
+  atLevel: ${LOG_ASPECTS_LEVEL:INFO}
