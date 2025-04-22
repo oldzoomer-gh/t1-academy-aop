@@ -45,7 +45,7 @@ public class TaskServiceImpl implements TaskService {
     public Task updateTask(Long id, Task task) {
         boolean statusIsChanged = false;
 
-        Task oldTask = taskRepository.findById(id).orElseThrow();
+        Task oldTask = taskRepository.findById(id).orElseThrow(TaskNotFound::new);
 
         if (task.getName() != null) oldTask.setName(task.getName());
         if (task.getDescription() != null) oldTask.setDescription(task.getDescription());
@@ -73,5 +73,4 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(Long id) {
         taskRepository.deleteById(id);
     }
-
 }
