@@ -1,7 +1,6 @@
 package ru.gavrilovegor519.t1_academy_aop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -22,6 +21,7 @@ import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 import ru.gavrilovegor519.t1_academy_aop.dto.TaskDto;
 import ru.gavrilovegor519.t1_academy_aop.enums.TaskStatus;
+import ru.gavrilovegor519.t1_academy_aop.repository.TaskRepository;
 
 import java.time.Duration;
 
@@ -31,8 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 @Testcontainers
-@ActiveProfiles("test")
 public class TaskControllerIntegrationTest {
 
     @Container
@@ -53,6 +53,8 @@ public class TaskControllerIntegrationTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private TaskRepository taskRepository;
 
     private static TaskDto taskDto;
     private static TaskDto updatedTaskDto;
@@ -86,22 +88,11 @@ public class TaskControllerIntegrationTest {
         updatedTaskDto.setName("Updated task name");
         updatedTaskDto.setDescription("Updated task description");
         updatedTaskDto.setTaskStatus(TaskStatus.IN_PROGRESS);
-
-        postgreSQLContainer.start();
-        kafkaContainer.start();
-        smtpContainer.start();
-    }
-
-    @AfterAll
-    static void tearDown() {
-        postgreSQLContainer.stop();
-        kafkaContainer.stop();
-        smtpContainer.stop();
     }
 
     @BeforeEach
     void cleanUp() throws Exception {
-        mockMvc.perform(delete("/tasks/all"));
+        taskRepository.deleteAll();
     }
 
     @Test
@@ -162,8 +153,8 @@ public class TaskControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").value(taskId))
                 .andExpect(jsonPath("$.authorEmail").value("author@mail.ru"))
                 .andExpect(jsonPath("$.executorEmail").value("executor@mail.ru"))
-                .andExpect(jsonPath("$.name").value("Updated Task name"))
-                .andExpect(jsonPath("$.description").value("Updated Task description"))
+                .andExpect(jsonPath("$.name").value("Updated task name"))
+                .andExpect(jsonPath("$.description").value("Updated task description"))
                 .andExpect(jsonPath("$.taskStatus").value("IN_PROGRESS"));
     }
 
