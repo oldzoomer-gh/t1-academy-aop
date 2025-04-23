@@ -75,14 +75,8 @@ class TaskServiceImplTest {
 
     @Test
     void testUpdateTask() {
-        Task oldTask = new Task();
-        oldTask.setId(1L);
-        oldTask.setTaskStatus(TaskStatus.NEW);
-        oldTask.setExecutorEmail("executor@example.com");
-
-        Task newTask = new Task();
-        newTask.setTaskStatus(TaskStatus.CANCELED);
-
+        Task oldTask = createTask(1L, TaskStatus.NEW, "executor@example.com");
+        Task newTask = createTask(null, TaskStatus.CANCELED, null);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(oldTask));
         when(taskRepository.save(any(Task.class))).thenReturn(oldTask);
 
@@ -99,5 +93,13 @@ class TaskServiceImplTest {
         taskService.deleteTask(1L);
 
         verify(taskRepository).deleteById(1L);
+    }
+
+    private Task createTask(Long id, TaskStatus taskStatus, String executorEmail) {
+        Task task = new Task();
+        task.setId(id);
+        task.setTaskStatus(taskStatus);
+        task.setExecutorEmail(executorEmail);
+        return task;
     }
 }

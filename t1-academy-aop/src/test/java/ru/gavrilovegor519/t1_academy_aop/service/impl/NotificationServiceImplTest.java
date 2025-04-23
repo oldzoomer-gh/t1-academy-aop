@@ -22,20 +22,26 @@ class NotificationServiceImplTest {
     @InjectMocks
     private NotificationServiceImpl notificationService;
 
+    private static final String FROM_EMAIL = "test@example.com";
+
     @BeforeEach
     void setUp() {
-        notificationService = new NotificationServiceImpl(mailSender, "test@example.com");
+        notificationService = new NotificationServiceImpl(mailSender, FROM_EMAIL);
     }
 
     @Test
     void testSendEmail() {
-        MailLetter mailLetter = new MailLetter();
-        mailLetter.setEmail("recipient@example.com");
-        mailLetter.setSubject("Test Subject");
-        mailLetter.setText("Test Text");
-
+        MailLetter mailLetter = createMailLetter("recipient@example.com", "Test Subject", "Test Text");
         notificationService.sendEmail(mailLetter);
 
         verify(mailSender).send(any(SimpleMailMessage.class));
+    }
+
+    private MailLetter createMailLetter(String email, String subject, String text) {
+        MailLetter mailLetter = new MailLetter();
+        mailLetter.setEmail(email);
+        mailLetter.setSubject(subject);
+        mailLetter.setText(text);
+        return mailLetter;
     }
 }

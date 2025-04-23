@@ -1,29 +1,18 @@
 package ru.gavrilovegor519.t1_academy_aop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.kafka.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
+import ru.gavrilovegor519.t1_academy_aop.config.TestContainersConfig;
 import ru.gavrilovegor519.t1_academy_aop.dto.TaskDto;
 import ru.gavrilovegor519.t1_academy_aop.enums.TaskStatus;
 import ru.gavrilovegor519.t1_academy_aop.repository.TaskRepository;
-
-import java.time.Duration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -32,71 +21,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@Testcontainers
-public class TaskControllerIntegrationTest {
-
-    @Container
-    public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres")
-            .withDatabaseName("testdb")
-            .withExposedPorts(5432)
-            .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(20)));
-    @Container
-    public static GenericContainer<?> kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka"))
-            .withExposedPorts(9092)
-            .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(20)));
-    @Container
-    public static GenericContainer<?> smtpContainer = new GenericContainer<>(DockerImageName.parse("mailhog/mailhog"))
-            .withExposedPorts(1025, 8025)
-            .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(20)));
+public class TaskControllerIntegrationTest extends TestContainersConfig {
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
     private ObjectMapper objectMapper;
+
     @Autowired
     private TaskRepository taskRepository;
 
-    private static TaskDto taskDto;
-    private static TaskDto updatedTaskDto;
-
-    @DynamicPropertySource
-    static void registerPgProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
-        registry.add("spring.kafka.bootstrap-servers", () -> kafkaContainer.getHost() + ":" + kafkaContainer.getMappedPort(9092));
-        registry.add("spring.mail.host", smtpContainer::getHost);
-        registry.add("spring.mail.port", () -> smtpContainer.getMappedPort(1025));
-        registry.add("spring.mail.properties.mail.smtp.auth", () -> "false");
-        registry.add("spring.mail.properties.mail.smtp.starttls.enable", () -> "false");
-        registry.add("spring.mail.from", () -> "test@1.ru");
-    }
-
-    @BeforeAll
-    static void setUp() {
-        taskDto = new TaskDto();
-        taskDto.setAuthorEmail("author@mail.ru");
-        taskDto.setExecutorEmail("executor@mail.ru");
-        taskDto.setName("Task name");
-        taskDto.setDescription("Task description");
-        taskDto.setTaskStatus(TaskStatus.NEW);
-
-        updatedTaskDto = new TaskDto();
-        updatedTaskDto.setAuthorEmail("author@mail.ru");
-        updatedTaskDto.setExecutorEmail("executor@mail.ru");
-        updatedTaskDto.setName("Updated task name");
-        updatedTaskDto.setDescription("Updated task description");
-        updatedTaskDto.setTaskStatus(TaskStatus.IN_PROGRESS);
-    }
-
     @BeforeEach
-    void cleanUp() throws Exception {
+    void cleanUp() {
         taskRepository.deleteAll();
     }
 
     @Test
     void testCreateTask() throws Exception {
+        TaskDto taskDto = createTaskDto("author@mail.ru", "executor@mail.ru", "Task name", "Task description", TaskStatus.NEW);
+
         mockMvc.perform(post("/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(taskDto)))
@@ -118,6 +62,8 @@ public class TaskControllerIntegrationTest {
 
     @Test
     void testGetTaskById() throws Exception {
+        TaskDto taskDto = createTaskDto("author@mail.ru", "executor@mail.ru", "Task name", "Task description", TaskStatus.NEW);
+
         String response = mockMvc.perform(post("/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(taskDto)))
@@ -138,6 +84,9 @@ public class TaskControllerIntegrationTest {
 
     @Test
     void testUpdateTask() throws Exception {
+        TaskDto taskDto = createTaskDto("author@mail.ru", "executor@mail.ru", "Task name", "Task description", TaskStatus.NEW);
+        TaskDto updatedTaskDto = createTaskDto("author@mail.ru", "executor@mail.ru", "Updated task name", "Updated task description", TaskStatus.IN_PROGRESS);
+
         String response = mockMvc.perform(post("/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(taskDto)))
@@ -160,6 +109,8 @@ public class TaskControllerIntegrationTest {
 
     @Test
     void testDeleteTask() throws Exception {
+        TaskDto taskDto = createTaskDto("author@mail.ru", "executor@mail.ru", "Task name", "Task description", TaskStatus.NEW);
+
         String response = mockMvc.perform(post("/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(taskDto)))
@@ -173,5 +124,15 @@ public class TaskControllerIntegrationTest {
 
         mockMvc.perform(get("/tasks/" + taskId))
                 .andExpect(status().isNotFound());
+    }
+
+    private TaskDto createTaskDto(String authorEmail, String executorEmail, String name, String description, TaskStatus taskStatus) {
+        TaskDto taskDto = new TaskDto();
+        taskDto.setAuthorEmail(authorEmail);
+        taskDto.setExecutorEmail(executorEmail);
+        taskDto.setName(name);
+        taskDto.setDescription(description);
+        taskDto.setTaskStatus(taskStatus);
+        return taskDto;
     }
 }
