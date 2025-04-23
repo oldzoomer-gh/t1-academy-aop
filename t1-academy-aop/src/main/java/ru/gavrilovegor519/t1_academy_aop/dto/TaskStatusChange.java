@@ -1,11 +1,9 @@
 package ru.gavrilovegor519.t1_academy_aop.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.gavrilovegor519.t1_academy_aop.enums.TaskStatus;
 
-@NoArgsConstructor
 @Getter
 @Setter
 public class TaskStatusChange {
