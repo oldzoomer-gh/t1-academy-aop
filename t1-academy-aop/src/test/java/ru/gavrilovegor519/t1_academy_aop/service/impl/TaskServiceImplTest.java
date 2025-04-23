@@ -19,8 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TaskServiceImplTest {
@@ -41,8 +40,8 @@ class TaskServiceImplTest {
 
     @Test
     void testGetAllTasks() {
-        Task task1 = new Task();
-        Task task2 = new Task();
+        Task task1 = mock(Task.class);
+        Task task2 = mock(Task.class);
         when(taskRepository.findAll()).thenReturn(Arrays.asList(task1, task2));
 
         List<Task> tasks = taskService.getAllTasks();
@@ -53,7 +52,7 @@ class TaskServiceImplTest {
 
     @Test
     void testGetTaskById() {
-        Task task = new Task();
+        Task task = mock(Task.class);
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
 
         Task foundTask = taskService.getTaskById(1L);
@@ -64,7 +63,7 @@ class TaskServiceImplTest {
 
     @Test
     void testCreateTask() {
-        Task task = new Task();
+        Task task = mock(Task.class);
         when(taskRepository.save(any(Task.class))).thenReturn(task);
 
         Task createdTask = taskService.createTask(task);
@@ -75,10 +74,13 @@ class TaskServiceImplTest {
 
     @Test
     void testUpdateTask() {
-        Task oldTask = createTask(1L, TaskStatus.NEW, "executor@example.com");
-        Task newTask = createTask(null, TaskStatus.CANCELED, null);
+        Task oldTask = mock(Task.class);
+        Task newTask = mock(Task.class);
+        when(newTask.getTaskStatus()).thenReturn(TaskStatus.CANCELED);
+        when(oldTask.getTaskStatus()).thenReturn(TaskStatus.IN_PROGRESS);
+
         when(taskRepository.findById(1L)).thenReturn(Optional.of(oldTask));
-        when(taskRepository.save(any(Task.class))).thenReturn(oldTask);
+        when(taskRepository.save(any(Task.class))).thenReturn(newTask);
 
         Task updatedTask = taskService.updateTask(1L, newTask);
 
@@ -93,13 +95,5 @@ class TaskServiceImplTest {
         taskService.deleteTask(1L);
 
         verify(taskRepository).deleteById(1L);
-    }
-
-    private Task createTask(Long id, TaskStatus taskStatus, String executorEmail) {
-        Task task = new Task();
-        task.setId(id);
-        task.setTaskStatus(taskStatus);
-        task.setExecutorEmail(executorEmail);
-        return task;
     }
 }

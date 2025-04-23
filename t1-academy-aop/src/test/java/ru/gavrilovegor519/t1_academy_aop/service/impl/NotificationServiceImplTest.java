@@ -11,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import ru.gavrilovegor519.t1_academy_aop.dto.MailLetter;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,17 +32,9 @@ class NotificationServiceImplTest {
 
     @Test
     void testSendEmail() {
-        MailLetter mailLetter = createMailLetter("recipient@example.com", "Test Subject", "Test Text");
+        MailLetter mailLetter = mock(MailLetter.class);
         notificationService.sendEmail(mailLetter);
 
         verify(mailSender).send(any(SimpleMailMessage.class));
-    }
-
-    private MailLetter createMailLetter(String email, String subject, String text) {
-        MailLetter mailLetter = new MailLetter();
-        mailLetter.setEmail(email);
-        mailLetter.setSubject(subject);
-        mailLetter.setText(text);
-        return mailLetter;
     }
 }
