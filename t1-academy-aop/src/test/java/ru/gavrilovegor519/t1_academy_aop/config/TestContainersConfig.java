@@ -16,7 +16,7 @@ import java.time.Duration;
 public class TestContainersConfig {
 
     @Container
-    public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:17")
+    public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:17-alpine")
             .withDatabaseName("testdb")
             .withExposedPorts(5432)
             .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(20)));
@@ -33,11 +33,11 @@ public class TestContainersConfig {
 
     @DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
+        registry.add("spring.datasource.url", () -> "jdbc:tc:postgresql:17-alpine:///testdb");
         registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
         registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
-        registry.add("spring.kafka.bootstrap-servers", () -> kafkaContainer.getBootstrapServers());
+        registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
         registry.add("spring.mail.host", smtpContainer::getHost);
         registry.add("spring.mail.port", () -> smtpContainer.getMappedPort(1025));
         registry.add("spring.mail.properties.mail.smtp.auth", () -> "false");
